@@ -5,7 +5,7 @@ A modified variant of OpenALPR, designed to be the back-end to Predator ALPR.
 
 ## Description
 
-OpenALPR is arguably the gold standard for automated license plate recognition. It's a highly customizable, multi-purpose utility designed to detect license plates in images, videos, and live streams.
+[OpenALPR](https://github.com/openalpr/openalpr) is arguably the gold standard for automated license plate recognition. It's a highly customizable, multi-purpose utility designed to detect license plates in images, videos, and live streams.
 
 Phantom is designed to be an extremely focused variant of OpenALPR. While the customizability of OpenALPR makes it a fantastic tool for all sorts of use cases, developers who know exactly what they need might find OpenALPR to be unnecessarily complex. Phantom is strictly intended to be a programming interface, not an end-user tool. There are limited command line options, and all outputs are displayed in computer-readable formats.
 
