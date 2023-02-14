@@ -10,7 +10,7 @@ sudo apt-get install libopencv-dev libtesseract-dev git cmake build-essential li
 sudo apt-get install liblog4cplus-dev libcurl3-dev
 
 
-cd openalpr/src
+cd phantom/src
 mkdir build
 cd build
 
