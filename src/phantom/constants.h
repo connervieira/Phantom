@@ -22,18 +22,18 @@
 
 
 #define RUNTIME_DIR 		"/runtime_data"
-#define CONFIG_FILE 		"/openalpr.conf"
+#define CONFIG_FILE 		"/phantom.conf"
 #define KEYPOINTS_DIR		"/keypoints"
 #define CASCADE_DIR		"/region/"
 #define POSTPROCESS_DIR		"/postprocess"
 
-#define DEFAULT_SHARE_DIR   INSTALL_PREFIX "/share/openalpr"
+#define DEFAULT_SHARE_DIR   INSTALL_PREFIX "/share/phantom"
 
 #define DEFAULT_RUNTIME_DATA_DIR 	    DEFAULT_SHARE_DIR "/runtime_data"
-#define CONFIG_FILE_TEMPLATE_LOCATION 	DEFAULT_SHARE_DIR "/config/openalpr.defaults.conf"
+#define CONFIG_FILE_TEMPLATE_LOCATION 	DEFAULT_SHARE_DIR "/config/phantom.defaults.conf"
 
 #ifndef DEFAULT_CONFIG_FILE
-  #define DEFAULT_CONFIG_FILE 	"/etc/openalpr/openalpr.conf"
+  #define DEFAULT_CONFIG_FILE 	"/etc/phantom/phantom.conf"
 #endif
 
 #define ENV_VARIABLE_CONFIG_FILE "OPENALPR_CONFIG_FILE"

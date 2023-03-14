@@ -75,4 +75,4 @@ add_definitions(-DCOMPILE_GPU=1)
 ENDIF()
 
 # Add definition for default config file
-add_definitions(-DDEFAULT_CONFIG_FILE="${CMAKE_INSTALL_SYSCONFDIR}/openalpr/openalpr.conf")
+add_definitions(-DDEFAULT_CONFIG_FILE="${CMAKE_INSTALL_SYSCONFDIR}/phantom/phantom.conf")

@@ -1,10 +1,5 @@
 /*
- * Copyright (c) 2015 OpenALPR Technology, Inc.
- * Open source Automated License Plate Recognition [http://www.openalpr.com]
- * 
- * This file is part of OpenALPR.
- * 
- * OpenALPR is free software: you can redistribute it and/or modify
+ * Phantom is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License 
  * version 3 as published by the Free Software Foundation 
  * 
