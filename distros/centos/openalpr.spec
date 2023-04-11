@@ -77,7 +77,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
    
-  /etc/openalpr/openalpr.conf 
+  /etc/phantom/phantom.conf 
   /usr/bin/alpr
   /usr/share/man/man1/alpr.1.gz
 
@@ -105,7 +105,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n libopenalpr2-data
 %defattr(-,root,root,-)
-  /usr/share/openalpr/runtime_data/
+  /usr/share/phantom/runtime_data/
 
 %files -n libopenalpr2
 %defattr(-,root,root,-)

@@ -1,2 +1,2 @@
 ; This configuration file overrides the default values specified 
-; in ${CMAKE_INSTALL_PREFIX}/share/openalpr/config/openalpr.defaults.conf
+; in ${CMAKE_INSTALL_PREFIX}/share/phantom/config/phantom.defaults.conf

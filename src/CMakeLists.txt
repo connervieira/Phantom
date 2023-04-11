@@ -133,7 +133,7 @@ add_subdirectory(video)
 
 if (NOT IOS)
   install (TARGETS    alpr DESTINATION   ${CMAKE_INSTALL_PREFIX}/bin)
-  install (FILES      ${CMAKE_SOURCE_DIR}/../doc/man/phantom.1 DESTINATION       ${CMAKE_INSTALL_PREFIX}/share/man/man1 COMPONENT doc)
+  install (FILES      ${CMAKE_SOURCE_DIR}/../doc/man/alpr.1 DESTINATION       ${CMAKE_INSTALL_PREFIX}/share/man/man1 COMPONENT doc)
 ENDIF()
 install (DIRECTORY  ${CMAKE_SOURCE_DIR}/../runtime_data DESTINATION         ${CMAKE_INSTALL_PREFIX}/share/phantom)
 
@@ -160,7 +160,7 @@ SET (CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1.3), libgcc1 (>= 4.1.1), libtess
 
 SET (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/../LICENSE")
 SET (CPACK_PACKAGE_DESCRIPTION "Phantom - Open Source Automatic License Plate Recognition")
-SET (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Phantom is an open source Automatic License Plate Recognition library written in C++. The library analyzes images and identifies license plates. The output is the text representation of any license plate characters found in the image.")
+SET (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Phantom is an open source license plate recognition system heavily based on OpenALPR. The library analyzes images and identifies license plates. The output is the text representation of any license plate characters found in the image.")
 SET (CPACK_PACKAGE_CONTACT "Conner Vieira <admin@v0lttech.com>")
 SET (CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CPACK_DEBIAN_ARCHITECTURE}")
 
