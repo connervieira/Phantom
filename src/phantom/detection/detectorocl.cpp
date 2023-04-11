@@ -71,17 +71,15 @@ namespace alpr
 				}
 				cout << "Select the OpenCL device by adjusting the environment variable OPENCV_OPENCL_DEVICE, e.g.\r\n-In Windows type at the command prompt:\r\n  set OPENCV_OPENCL_DEVICE=::1\r\n" << endl;
 			}
-		}
-		catch (...)
-		{
-			cout << "OpenCL error: No OpenCL device found.\r\n" << endl;
+		} catch (...) {
+			cout << "{\"error\": \"OpenCL error: No OpenCL device found.\"}\r\n" << endl;
 		}
 	}
 
     if (!ocl::haveOpenCL())
     {
       this->loaded = false;
-      cerr << "OpenCL not detected" << endl;
+      cerr << "{\"error\": \"OpenCL not detected\"}" << endl;
     }
 	else if( this->plate_cascade.load( get_detector_file() ) )
 		{
@@ -90,7 +88,7 @@ namespace alpr
 		else
 		{
 			this->loaded = false;
-			cerr << "--(!)Error loading cascade " << get_detector_file() << "\n" << endl;
+			cerr << "{\"error\": \"--(!)Error loading cascade " << get_detector_file() << "\"}\n" << endl;
 		}
   }
 

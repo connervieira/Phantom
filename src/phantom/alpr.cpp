@@ -34,13 +34,10 @@ namespace alpr
     delete impl;
   }
 
-  AlprResults Alpr::recognize(std::string filepath)
-  {
-    
+  AlprResults Alpr::recognize(std::string filepath) {
     std::ifstream ifs(filepath.c_str(), std::ios::binary|std::ios::ate);
     
-    if (ifs)
-      {
+    if (ifs) {
       std::ifstream::pos_type pos = ifs.tellg();
 
       std::vector<char>  buffer(pos);
@@ -49,10 +46,8 @@ namespace alpr
       ifs.read(&buffer[0], pos);
 
       return this->recognize( buffer );
-    }
-    else
-    {
-      std::cerr << "file does not exist: " << filepath << std::endl;
+    } else {
+      std::cerr << "{\"error\": \"File does not exist: " << filepath << "\"}" << std::endl;
       AlprResults emptyResults;
       emptyResults.epoch_time = getEpochTimeMs();
       emptyResults.img_width = 0;

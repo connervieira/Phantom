@@ -39,7 +39,7 @@ namespace alpr
     this->valid = false;
     string::iterator end_it = utf8::find_invalid(pattern.begin(), pattern.end());
     if (end_it != pattern.end()) {
-      cerr << "Invalid UTF-8 encoding detected " << endl;
+      cerr << "{\"error\": \"Invalid UTF-8 encoding detected\"}" << endl;
       return;
     }
     
@@ -88,7 +88,7 @@ namespace alpr
       }
       else if ((utf_character == "*") || (utf_character == "+"))
       {
-        cerr << "Regex with wildcards (* or +) not supported" << endl;
+        cerr << "{\"error\": \"Regex with wildcards (* or +) not supported\"}" << endl;
       }
       else
       {
@@ -105,7 +105,7 @@ namespace alpr
 
     
     if (!re2_regex->ok()) {
-      cerr << "Unable to load regex: " << pattern << endl;
+      cerr << "{\"error\": \"Unable to load regex: " << pattern << "\"}" << endl;
     }
     else
     {
@@ -126,7 +126,7 @@ namespace alpr
     
     string::iterator end_it = utf8::find_invalid(text.begin(), text.end());
     if (end_it != text.end()) {
-      cerr << "Invalid UTF-8 encoding detected " << endl;
+      cerr << "{\"error\": \"Invalid UTF-8 encoding detected\"}" << endl;
       return false;
     }
    

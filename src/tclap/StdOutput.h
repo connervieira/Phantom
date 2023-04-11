@@ -127,8 +127,7 @@ inline void StdOutput::failure( CmdLineInterface& _cmd,
                                 ArgException& e )
 {
   std::string progName = _cmd.getProgramName();
-  std::cerr << "PARSE ERROR: " << e.argId() << std::endl
-            << "             " << e.error() << std::endl << std::endl;
+  std::cerr << "{\"error\": \"PARSE ERROR: " << e.argId() << " " << e.error() << "\"}" << std::endl;
   if ( _cmd.hasHelpAndVersion() )
   {
     std::cerr << "Brief USAGE: " << std::endl;

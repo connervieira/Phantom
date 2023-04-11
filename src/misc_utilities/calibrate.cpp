@@ -309,13 +309,13 @@ int main(int argc, char** argv) {
   }
   catch (TCLAP::ArgException &e)    // catch any exceptions
   {
-    std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
+    std::cerr << "{\"error\": \"error: " << e.error() << " for arg " << e.argId() << "\"}" << std::endl;
     return 1;
   }
   
   if (!alpr::fileExists(filename.c_str()))
   {
-    cerr << "Could not find image file: " << filename << endl;
+    cerr << "{\"error\": \"Could not find image file: " << filename << "\"}" << << endl;
   }
   
   config = alpr::Config(country);
@@ -393,7 +393,7 @@ int main(int argc, char** argv) {
     
     cv::imwrite(image_output_file.c_str(), output_image);
     
-    cout << "Exported file to: " << image_output_file << endl;
+    cout << "{\"info\": \"Exported file to: " << image_output_file << "\"}" << endl;
     return 0;
   }
   

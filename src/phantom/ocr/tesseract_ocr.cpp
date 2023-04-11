@@ -38,8 +38,7 @@ namespace alpr
     
     if (cmpVersion(tesseract.Version(), MINIMUM_TESSERACT_VERSION.c_str()) < 0)
     {
-      std::cerr << "Warning: You are running an unsupported version of Tesseract." << endl;
-      std::cerr << "Expecting at least " << MINIMUM_TESSERACT_VERSION << ", your version is: " << tesseract.Version() << endl;
+      std::cerr << "{\"error\": \"Warning: You are running an unsupported version of Tesseract. Expecting at least " << MINIMUM_TESSERACT_VERSION << ", your version is: " << tesseract.Version() << "\"}" << endl;
     }
 
     string TessdataPrefix = config->getTessdataPrefix();

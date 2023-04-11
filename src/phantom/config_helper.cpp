@@ -131,7 +131,7 @@ namespace alpr
     if (defaultIni != NULL && hasValue(defaultIni, section, key))
       return getInt(defaultIni, section, key, defaultValue);
     
-    std::cerr << "Missing config value for " << key << std::endl;
+    std::cerr << "{\"error\": \"Missing config value for " << key << "\"}" << std::endl;
     
     return defaultValue;
   }
@@ -143,7 +143,7 @@ namespace alpr
     if (defaultIni != NULL && hasValue(defaultIni, section, key))
       return getFloat(defaultIni, section, key, defaultValue);
     
-    std::cerr << "Missing config value for " << key << std::endl;
+    std::cerr << "{\"error\": \"Missing config value for " << key << "\"}" << std::endl;
     
     return defaultValue;
   }
@@ -155,7 +155,7 @@ namespace alpr
     if (defaultIni != NULL && hasValue(defaultIni, section, key))
       return getString(defaultIni, section, key, defaultValue);
     
-    std::cerr << "Missing config value for " << key << std::endl;
+    std::cerr << "{\"error\": \"Missing config value for " << key << "\"}" << std::endl;
     return defaultValue;
   }
   bool getBoolean(CSimpleIniA* ini, CSimpleIniA* defaultIni, std::string section, std::string key, bool defaultValue)
@@ -166,7 +166,7 @@ namespace alpr
     if (defaultIni != NULL && hasValue(defaultIni, section, key))
       return getBoolean(defaultIni, section, key, defaultValue);
     
-    std::cerr << "Missing config value for " << key << std::endl;
+    std::cerr << "{\"error\": \"Missing config value for " << key << "\"}" << std::endl;
     return defaultValue;
   }
 }

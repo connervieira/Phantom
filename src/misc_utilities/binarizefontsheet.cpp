@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
   }
   catch (TCLAP::ArgException &e)    // catch any exceptions
   {
-    std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
+    std::cerr << "{\"error\": \"error: " << e.error() << " for arg " << e.argId() << "\"}" << std::endl;
     return 1;
   }
   
@@ -138,13 +138,13 @@ int main(int argc, char** argv) {
   
   if (DirectoryExists(out_dir.c_str()) == false)
   {
-    cout << "Output dir: " << out_dir << " does not exist" << endl;
+    cout << "{\"error\": \"Output dir: " << out_dir << " does not exist\"}" << endl;
     return 1;
   }
   
   if (fileExists(char_list_file.c_str()) == false)
   {
-    cout << "Character text file: " << char_list_file << " does not exist" << endl;
+    cout << "{\"error\": \"Character text file: " << char_list_file << " does not exist\"}" << endl;
     return 1;
   }
   
@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
   {
     if (fileExists(font_sheet_files[i].c_str()) == false)
     {
-      cout << "Font sheet image: " << font_sheet_files[i] << " does not exist." << endl;
+      cout << "{\"error\": \"Font sheet image: " << font_sheet_files[i] << " does not exist.\"}" << endl;
       return 1;
     }
   }

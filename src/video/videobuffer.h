@@ -61,7 +61,7 @@ class VideoDispatcher
     }
     virtual void log_error(std::string error)
     {
-      std::cerr << error << std::endl;
+      std::cerr << "{\"error\": \"" << error << "\"}" << std::endl;
     }
     
     std::vector<cv::Rect> calculateRegionsOfInterest(cv::Mat* frame)
