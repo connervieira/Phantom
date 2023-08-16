@@ -37,6 +37,7 @@ const std::string MAIN_WINDOW_NAME = "ALPR main window";
 
 const bool SAVE_LAST_VIDEO_STILL = false;
 const std::string LAST_VIDEO_STILL_LOCATION = "/tmp/laststill.jpg";
+const std::string WEBCAM_PREFIX = "/dev/video";
 MotionDetector motiondetector;
 bool do_motiondetection = true;
 
@@ -106,7 +107,30 @@ int main( int argc, const char** argv) {
     for (unsigned int i = 0; i < filenames.size(); i++) { // Iterate through all of the file names supplied.
         std::string filename = filenames[i];
 
-        if (is_supported_video(filename)) { // Handle video files.
+        if (filename == "webcam" || startsWith(filename, WEBCAM_PREFIX)) { // Handle webcam video streams.
+            int webcamnumber = 0;
+      
+            // Parse the webcam device number.
+            if(startsWith(filename, WEBCAM_PREFIX) && filename.length() > WEBCAM_PREFIX.length()) { 
+                webcamnumber = atoi(filename.substr(WEBCAM_PREFIX.length()).c_str());
+            }
+      
+            int framenum = 0;
+            cv::VideoCapture cap(webcamnumber);
+            if (!cap.isOpened()) {
+                std::cerr << "{\"error\": \"Error opening webcam\"}" << std::endl;
+                return 1;
+            }
+      
+            while (cap.read(frame)) {
+                if (framenum == 0) {
+                    motiondetector.ResetMotionDetection(&frame);
+                }
+                detectandshow(&alpr, frame, "", outputJson);
+                sleep_ms(10);
+                framenum++;
+            }
+        } else if (is_supported_video(filename)) { // Handle video files.
             if (fileExists(filename.c_str())) {
                 int framenum = 0;
 
