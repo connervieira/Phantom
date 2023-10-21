@@ -38,4 +38,4 @@ August 16th, 2023
 
 October 21st, 2023
 
-- When processing live video from a connected webcam, Phantom now saves stills from the stream to /dev/shm/phantom-webcam.jpg
+- When processing live video from a connected webcam, Phantom now saves stills from the stream to /dev/shm/phantom-webcam.jpg so other programs can access it without releasing the capture device.
