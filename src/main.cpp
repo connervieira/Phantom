@@ -127,6 +127,7 @@ int main( int argc, const char** argv) {
                     motiondetector.ResetMotionDetection(&frame);
                 }
                 detectandshow(&alpr, frame, "", outputJson);
+                imwrite("/dev/shm/phantom-webcam.jpg", frame); // Save the captured frame to memory so other program's can access it.
                 sleep_ms(10);
                 framenum++;
             }

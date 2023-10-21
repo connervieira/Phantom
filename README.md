@@ -34,6 +34,10 @@ Phantom isn't intended to operate as a daemon itself and instead focuses on bein
 
 Vanilla OpenALPR has support for several different programming languages. While useful is many cases, these libraries add quite a bit of complexity, so Phantom removes them in favor of a more general support structure.
 
+### Video Transparency
+
+When using a live video stream from a capture device, Phantom saves still frames to /dev/shm/phantom-webcam.jpg, where other programs can access it without needing to release the capture device.
+
 
 ## Installation
 
