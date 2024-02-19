@@ -32,7 +32,7 @@ Phantom isn't intended to operate as a daemon itself and instead focuses on bein
 
 ### Disabled Bindings
 
-Vanilla OpenALPR has support for several different programming languages. While useful is many cases, these libraries add quite a bit of complexity, so Phantom removes them in favor of a more general support structure.
+Vanilla OpenALPR has support for several different programming languages. While useful in many cases, these libraries add quite a bit of complexity, so Phantom removes them in favor of a more general support structure.
 
 ### Video Transparency
 
