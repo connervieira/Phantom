@@ -43,6 +43,6 @@ October 21st, 2023
 
 ## Version 1.3.1
 
-*Release date to be determined*
+September 12th, 2024
 
 - Added support for M4V videos.
