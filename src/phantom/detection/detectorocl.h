@@ -22,7 +22,7 @@
 
 #include <vector>
 
-#if OPENCV_MAJOR_VERSION == 3
+#if OPENCV_MAJOR_VERSION >= 3
 
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/imgproc/imgproc.hpp"

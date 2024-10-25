@@ -190,7 +190,7 @@ int main( int argc, const char** argv) {
 
 
 bool is_supported_video(std::string file_name) {
-    return (hasEndingInsensitive(file_name, ".avi") || hasEndingInsensitive(file_name, ".mp4") || hasEndingInsensitive(file_name, ".webm") || hasEndingInsensitive(file_name, ".flv") || hasEndingInsensitive(file_name, ".mjpg") || hasEndingInsensitive(file_name, ".mjpeg") || hasEndingInsensitive(file_name, ".mkv") || hasEndingInsensitive(file_name, ".m4v"));
+    return (hasEndingInsensitive(file_name, ".avi") || hasEndingInsensitive(file_name, ".mp4") || hasEndingInsensitive(file_name, ".webm") || hasEndingInsensitive(file_name, ".flv") || hasEndingInsensitive(file_name, ".mjpg") || hasEndingInsensitive(file_name, ".mjpeg") || hasEndingInsensitive(file_name, ".mkv") || hasEndingInsensitive(file_name, ".m4v") || hasEndingInsensitive(file_name, ".ts"));
 }
 
 bool is_supported_image(std::string file_name) {

@@ -46,3 +46,10 @@ October 21st, 2023
 September 12th, 2024
 
 - Added support for M4V videos.
+
+
+## Version 1.3.2
+
+October 9th, 2024
+
+- Added support for TS videos.

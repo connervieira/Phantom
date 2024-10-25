@@ -2,7 +2,7 @@
  * Copyright (c) 2015 OpenALPR Technology, Inc.
  * Open source Automated License Plate Recognition [http://www.openalpr.com]
  *
- * This file is part of OpenALPR.
+ * This file is part of Phantom ALPR.
  *
  * OpenALPR is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License
@@ -20,7 +20,7 @@
 #include "detectorocl.h"
 #include <support/tinythread.h>
 
-#if OPENCV_MAJOR_VERSION == 3
+#if OPENCV_MAJOR_VERSION >= 3
 
 using namespace cv;
 using namespace std;
@@ -116,7 +116,7 @@ namespace alpr
       equalizeHist( openclFrame, openclFrame );
 
       plate_cascade.detectMultiScale( openclFrame, plates, config->detection_iteration_increase, config->detectionStrictness,
-                                      CV_HAAR_DO_CANNY_PRUNING,
+                                      CASCADE_DO_CANNY_PRUNING,
                                       min_plate_size, max_plate_size );
 
       ocl_detector_mutex_m.unlock();
@@ -126,7 +126,7 @@ namespace alpr
       equalizeHist( orig_frame, orig_frame );
 
       plate_cascade.detectMultiScale( orig_frame, plates, config->detection_iteration_increase, config->detectionStrictness,
-                                      CV_HAAR_DO_CANNY_PRUNING,
+                                      CASCADE_DO_CANNY_PRUNING,
                                       min_plate_size, max_plate_size );
     }
 
