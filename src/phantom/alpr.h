@@ -21,107 +21,100 @@
 #include <stdint.h>
 #include <vector>
 
+
+
 #ifdef WIN32
   #define OPENALPR_DLL_EXPORT __declspec( dllexport )
 #else
   #define OPENALPR_DLL_EXPORT 
 #endif
 
-namespace alpr
-{
+namespace alpr {
+    struct AlprCoordinate {
+        int x;
+        int y;
+    };
   
-  struct AlprCoordinate
-  {
-    int x;
-    int y;
-  };
+    struct AlprChar {
+        AlprCoordinate corners[4];
+        float confidence;
+        std::string character;
+    };
   
-  struct AlprChar
-  {
-    AlprCoordinate corners[4];
-    float confidence;
-    std::string character;
-  };
-  
-  struct AlprPlate
-  {
-    std::string characters;
-    float overall_confidence;
+    struct AlprPlate {
+        std::string characters;
+        float overall_confidence;
 
-    std::vector<AlprChar> character_details;
-    bool matches_template;
-  };
+        std::vector<AlprChar> character_details;
+        bool matches_template;
+    };
   
 
-  class AlprRegionOfInterest
-  {
-  public:
-    AlprRegionOfInterest();
-    AlprRegionOfInterest(int x, int y, int width, int height)
-    {
-      this->x = x;
-      this->y = y;
-      this->width = width;
-      this->height = height;
+    class AlprRegionOfInterest {
+        public:
+            AlprRegionOfInterest();
+            AlprRegionOfInterest(int x, int y, int width, int height) {
+                this->x = x;
+                this->y = y;
+                this->width = width;
+                this->height = height;
+            };
+        int x;
+        int y;
+        int width;
+        int height;
     };
 
-    int x;
-    int y;
-    int width;
-    int height;
-  };
+    class AlprPlateResult {
+        public:
+            AlprPlateResult() {};
+            virtual ~AlprPlateResult() {};
 
-  class AlprPlateResult
-  {
-    public:
-      AlprPlateResult() {};
-      virtual ~AlprPlateResult() {};
+            // The number requested is always >= the topNPlates count
+            int requested_topn;
 
-      // The number requested is always >= the topNPlates count
-      int requested_topn;
-
-      // The country (training data code) that was used to recognize the plate
-      std::string country;
+            // The country (training data code) that was used to recognize the plate:
+            std::string country;
       
-      // the best plate is the topNPlate with the highest confidence
-      AlprPlate bestPlate;
+            // the best plate is the topNPlate with the highest confidence
+            AlprPlate bestPlate;
       
-      // A list of possible plate number permutations
-      std::vector<AlprPlate> topNPlates;
+            // A list of possible plate number permutations
+            std::vector<AlprPlate> topNPlates;
 
-      // The processing time for this plate
-      float processing_time_ms;
+            // The processing time for this plate
+            float processing_time_ms;
       
-      // the X/Y coordinates of the corners of the plate (clock-wise from top-left)
-      AlprCoordinate plate_points[4];
+            // the X/Y coordinates of the corners of the plate (clock-wise from top-left)
+            AlprCoordinate plate_points[4];
 
-      // The index of the plate if there were multiple plates returned
-      int plate_index;
+            // The index of the plate if there were multiple plates returned
+            int plate_index;
       
-      // When region detection is enabled, this returns the region.  Region detection is experimental
-      int regionConfidence;
-      std::string region;
-  };
+            // When region detection is enabled, this returns the region.  Region detection is experimental
+            int regionConfidence;
+            std::string region;
+    };
 
-  class AlprResults
-  {
-    public:
-      AlprResults() {
-        frame_number = -1;
-      };
-      virtual ~AlprResults() {};
+    class AlprResults {
+        public:
+            AlprResults() {
+                frame_number = -1;
+            };
+        virtual ~AlprResults() {};
 
-      int64_t epoch_time;
-      int64_t frame_number;
-      int img_width;
-      int img_height;
-      float total_processing_time_ms;
+        int64_t epoch_time;
+        int64_t frame_number;
+        int img_width;
+        int img_height;
+        float total_processing_time_ms;
 
-      std::vector<AlprPlateResult> plates;
+        std::string identifier; // This is a random unique identifier used to specify the frame used to determine these results.
 
-      std::vector<AlprRegionOfInterest> regionsOfInterest;
+        std::vector<AlprPlateResult> plates;
 
-  };
+        std::vector<AlprRegionOfInterest> regionsOfInterest;
+    };
 
 
   class Config;

@@ -24,19 +24,22 @@ the library, the accuracy for these other countries can be increased.
 .SH "USAGE"
 .PP 
 
-   alpr  [\-c <country_code>] [\-n <topN>] [\-\-]
-         [\-\-version] [\-h] <image_file_path>
+   alpr  [\-c <country_code>] [\-n <topN>] [\-\-] [\-\-version] [\-h] <image_file_path>
 
 
 Where: 
 
    \-c <country_code>,  \-\-country <country_code>
-     Country code to identify (either us for USA or eu for Europe). Can pass
+     Country code to identify (Example: `us` for USA or `eu` for Europe). Can pass
      multiple country codes separated by a comma. For example au,us,eu.
      Default=us
 
    \-n <topN>,  \-\-topn <topN>
-     Max number of possible plate numbers to return.  Default=10
+     Max number of possible plate numbers to return.
+     Default=10
+
+   \-s,  \-\-save_frames
+     Save each frame to `/dev/shm/phantomalpr/` with a unique identifier.
 
    \-\-,  \-\-ignore_rest
      Ignores the rest of the labeled arguments following this flag.

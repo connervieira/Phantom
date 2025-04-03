@@ -33,9 +33,7 @@ namespace alpr {
         prewarp = ALPR_NULL_PTR;
 
 
-        // Config file or runtime dir not found.  Don't process any further.
-        if (config->loaded == false)
-        {
+        if (config->loaded == false) { // Config file or runtime dir not found.  Don't process any further.
           return;
         }
 
@@ -62,9 +60,9 @@ namespace alpr {
 
         typedef std::map<std::string, AlprRecognizers>::iterator it_type;
         for(it_type iterator = recognizers.begin(); iterator != recognizers.end(); iterator++) {
-          delete iterator->second.plateDetector;
-          delete iterator->second.stateDetector;
-          delete iterator->second.ocr;
+            delete iterator->second.plateDetector;
+            delete iterator->second.stateDetector;
+            delete iterator->second.ocr;
         }
 
         delete prewarp;
@@ -113,8 +111,7 @@ namespace alpr {
         grayImg = prewarp->warpImage(grayImg);
         warpedRegionsOfInterest = prewarp->projectRects(regionsOfInterest, grayImg.cols, grayImg.rows, false);
 
-        // Iterate through each country provided (typically just one)
-        // and aggregate the results if necessary
+        // Iterate through each country provided (typically just one) and aggregate the results if necessary
         ResultAggregator country_aggregator(MERGE_PICK_BEST, topN, config);
         for (unsigned int i = 0; i < config->loaded_countries.size(); i++) {
             if (config->debugGeneral) {
@@ -363,282 +360,237 @@ namespace alpr {
     return response;
     }
 
-    AlprResults AlprImpl::recognize( std::vector<char> imageBytes)
-    {
-    try
-    {
-      cv::Mat img = cv::imdecode(cv::Mat(imageBytes), 1);
-      return this->recognize(img);
-    }
-    catch (cv::Exception& e)
-    {
-      std::cerr << "{\"error\": \"Caught exception in Phantom recognize: " << e.msg << "\"}" << std::endl;
-      AlprResults emptyresults;
-      return emptyresults;
-    }
+    AlprResults AlprImpl::recognize( std::vector<char> imageBytes) {
+        try {
+            cv::Mat img = cv::imdecode(cv::Mat(imageBytes), 1);
+            return this->recognize(img);
+        } catch (cv::Exception& e) {
+            std::cerr << "{\"error\": \"Caught exception in Phantom recognize: " << e.msg << "\"}" << std::endl;
+            AlprResults emptyresults;
+            return emptyresults;
+        }
     }
 
-    AlprResults AlprImpl::recognize(std::vector<char> imageBytes, std::vector<AlprRegionOfInterest> regionsOfInterest)
-    {
-    try
-    {
-      cv::Mat img = cv::imdecode(cv::Mat(imageBytes), 1);
-
-      std::vector<cv::Rect> rois = convertRects(regionsOfInterest);
-
-      AlprFullDetails fullDetails = recognizeFullDetails(img, rois);
-      return fullDetails.results;
-    }
-    catch (cv::Exception& e)
-    {
-      std::cerr << "{\"error\": \"Caught exception in Phantom recognize: " << e.msg << "\"}" << std::endl;
-      AlprResults emptyresults;
-      return emptyresults;
-    }
+    AlprResults AlprImpl::recognize(std::vector<char> imageBytes, std::vector<AlprRegionOfInterest> regionsOfInterest) {
+        try {
+            cv::Mat img = cv::imdecode(cv::Mat(imageBytes), 1);
+            std::vector<cv::Rect> rois = convertRects(regionsOfInterest);
+            AlprFullDetails fullDetails = recognizeFullDetails(img, rois);
+            return fullDetails.results;
+        } catch (cv::Exception& e) {
+            std::cerr << "{\"error\": \"Caught exception in Phantom recognize: " << e.msg << "\"}" << std::endl;
+            AlprResults emptyresults;
+            return emptyresults;
+        }
     }
 
-    AlprResults AlprImpl::recognize( unsigned char* pixelData, int bytesPerPixel, int imgWidth, int imgHeight, std::vector<AlprRegionOfInterest> regionsOfInterest)
-    {
+    AlprResults AlprImpl::recognize(unsigned char* pixelData, int bytesPerPixel, int imgWidth, int imgHeight, std::vector<AlprRegionOfInterest> regionsOfInterest) {
+        try {
+            int arraySize = imgWidth * imgHeight * bytesPerPixel;
+            cv::Mat imgData = cv::Mat(arraySize, 1, CV_8U, pixelData);
+            cv::Mat img = imgData.reshape(bytesPerPixel, imgHeight);
 
-    try
-    {
-      int arraySize = imgWidth * imgHeight * bytesPerPixel;
-      cv::Mat imgData = cv::Mat(arraySize, 1, CV_8U, pixelData);
-      cv::Mat img = imgData.reshape(bytesPerPixel, imgHeight);
+            if (regionsOfInterest.size() == 0) {
+                AlprRegionOfInterest fullFrame(0,0, img.cols, img.rows);
+                regionsOfInterest.push_back(fullFrame);
+            }
 
-      if (regionsOfInterest.size() == 0)
-      {
-        AlprRegionOfInterest fullFrame(0,0, img.cols, img.rows);
-
-        regionsOfInterest.push_back(fullFrame);
-      }
-
-      return this->recognize(img, this->convertRects(regionsOfInterest));
-    }
-    catch (cv::Exception& e)
-    {
-      std::cerr << "{\"error\": \"Caught exception in Phantom recognize: " << e.msg << "\"}" << std::endl;
-      AlprResults emptyresults;
-      return emptyresults;
-    }
+            return this->recognize(img, this->convertRects(regionsOfInterest));
+        } catch (cv::Exception& e) {
+            std::cerr << "{\"error\": \"Caught exception in Phantom recognize: " << e.msg << "\"}" << std::endl;
+            AlprResults emptyresults;
+            return emptyresults;
+        }
     }
 
-    AlprResults AlprImpl::recognize(cv::Mat img)
-    {
-    std::vector<cv::Rect> regionsOfInterest;
-    regionsOfInterest.push_back(cv::Rect(0, 0, img.cols, img.rows));
-
-    return this->recognize(img, regionsOfInterest);
+    AlprResults AlprImpl::recognize(cv::Mat img) {
+        std::vector<cv::Rect> regionsOfInterest;
+        regionsOfInterest.push_back(cv::Rect(0, 0, img.cols, img.rows));
+        return this->recognize(img, regionsOfInterest);
     }
 
-    AlprResults AlprImpl::recognize(cv::Mat img, std::vector<cv::Rect> regionsOfInterest)
-    {
-    AlprFullDetails fullDetails = recognizeFullDetails(img, regionsOfInterest);
-    return fullDetails.results;
+    AlprResults AlprImpl::recognize(cv::Mat img, std::vector<cv::Rect> regionsOfInterest) {
+        AlprFullDetails fullDetails = recognizeFullDetails(img, regionsOfInterest);
+        return fullDetails.results;
     }
 
 
-    std::vector<cv::Rect> AlprImpl::convertRects(std::vector<AlprRegionOfInterest> regionsOfInterest)
-    {
-     std::vector<cv::Rect> rectRegions;
-     for (unsigned int i = 0; i < regionsOfInterest.size(); i++)
-     {
-       rectRegions.push_back(cv::Rect(regionsOfInterest[i].x, regionsOfInterest[i].y, regionsOfInterest[i].width, regionsOfInterest[i].height));
-     }
-
-     return rectRegions;
+    std::vector<cv::Rect> AlprImpl::convertRects(std::vector<AlprRegionOfInterest> regionsOfInterest) {
+        std::vector<cv::Rect> rectRegions;
+        for (unsigned int i = 0; i < regionsOfInterest.size(); i++) {
+            rectRegions.push_back(cv::Rect(regionsOfInterest[i].x, regionsOfInterest[i].y, regionsOfInterest[i].width, regionsOfInterest[i].height));
+        }
+        return rectRegions;
     }
 
-    string AlprImpl::toJson( const AlprResults results )
-    {
-    cJSON *root, *jsonResults;
-    root = cJSON_CreateObject();
+    string AlprImpl::toJson( const AlprResults results ) {
+        cJSON *root, *jsonResults;
+        root = cJSON_CreateObject();
 
+        cJSON_AddNumberToObject(root,"version",	2);
+        cJSON_AddStringToObject(root,"data_type", "alpr_results");
+        cJSON_AddStringToObject(root,"identifier", results.identifier.c_str());
+        cJSON_AddNumberToObject(root,"epoch_time", results.epoch_time);
+        cJSON_AddNumberToObject(root,"img_width", results.img_width);
+        cJSON_AddNumberToObject(root,"img_height", results.img_height);
+        cJSON_AddNumberToObject(root,"processing_time_ms", results.total_processing_time_ms );
 
-    cJSON_AddNumberToObject(root,"version",	2	  );
-    cJSON_AddStringToObject(root,"data_type",	"alpr_results"	  );
+        // Add the regions of interest to the JSON
+        cJSON *rois;
+        cJSON_AddItemToObject(root, "regions_of_interest", 		rois=cJSON_CreateArray());
+        for (unsigned int i=0;i<results.regionsOfInterest.size();i++) {
+            cJSON *roi_object;
+            roi_object = cJSON_CreateObject();
+            cJSON_AddNumberToObject(roi_object, "x",  results.regionsOfInterest[i].x);
+            cJSON_AddNumberToObject(roi_object, "y",  results.regionsOfInterest[i].y);
+            cJSON_AddNumberToObject(roi_object, "width",  results.regionsOfInterest[i].width);
+            cJSON_AddNumberToObject(roi_object, "height",  results.regionsOfInterest[i].height);
 
-    cJSON_AddNumberToObject(root,"epoch_time",	results.epoch_time	  );
-    cJSON_AddNumberToObject(root,"img_width",	results.img_width	  );
-    cJSON_AddNumberToObject(root,"img_height",	results.img_height	  );
-    cJSON_AddNumberToObject(root,"processing_time_ms", results.total_processing_time_ms );
+            cJSON_AddItemToArray(rois, roi_object);
+        }
 
-    // Add the regions of interest to the JSON
-    cJSON *rois;
-    cJSON_AddItemToObject(root, "regions_of_interest", 		rois=cJSON_CreateArray());
-    for (unsigned int i=0;i<results.regionsOfInterest.size();i++)
-    {
-      cJSON *roi_object;
-      roi_object = cJSON_CreateObject();
-      cJSON_AddNumberToObject(roi_object, "x",  results.regionsOfInterest[i].x);
-      cJSON_AddNumberToObject(roi_object, "y",  results.regionsOfInterest[i].y);
-      cJSON_AddNumberToObject(roi_object, "width",  results.regionsOfInterest[i].width);
-      cJSON_AddNumberToObject(roi_object, "height",  results.regionsOfInterest[i].height);
+        cJSON_AddItemToObject(root, "results", 		jsonResults=cJSON_CreateArray());
+        for (unsigned int i = 0; i < results.plates.size(); i++) {
+            cJSON *resultObj = createJsonObj( &results.plates[i] );
+            cJSON_AddItemToArray(jsonResults, resultObj);
+        }
 
-      cJSON_AddItemToArray(rois, roi_object);
-    }
-
-
-    cJSON_AddItemToObject(root, "results", 		jsonResults=cJSON_CreateArray());
-    for (unsigned int i = 0; i < results.plates.size(); i++)
-    {
-      cJSON *resultObj = createJsonObj( &results.plates[i] );
-      cJSON_AddItemToArray(jsonResults, resultObj);
-    }
-
-    // Print the JSON object to a string and return
-    char *out;
-    out=cJSON_PrintUnformatted(root);
-
-    cJSON_Delete(root);
-
-    string response(out);
-
-    free(out);
-    return response;
+        // Print the JSON object to a string and return
+        char *out;
+        out=cJSON_PrintUnformatted(root);
+        cJSON_Delete(root);
+        string response(out);
+        free(out);
+        return response;
     }
 
 
 
-    std::string AlprImpl::toJson( const AlprPlateResult result )
-    {
-    cJSON *resultObj = createJsonObj( &result );
+    std::string AlprImpl::toJson(const AlprPlateResult result) {
+        cJSON *resultObj = createJsonObj( &result );
+        char *out;
+        out=cJSON_PrintUnformatted(resultObj);
 
-    char *out;
-    out=cJSON_PrintUnformatted(resultObj);
+        cJSON_Delete(resultObj);
 
-    cJSON_Delete(resultObj);
+        string response(out);
 
-    string response(out);
+        free(out);
 
-    free(out);
-
-    return response;
+        return response;
     }
-    cJSON* AlprImpl::createJsonObj(const AlprPlateResult* result)
-    {
-    cJSON *root, *coords, *candidates;
+    cJSON* AlprImpl::createJsonObj(const AlprPlateResult* result) {
+        cJSON *root, *coords, *candidates;
 
-    root=cJSON_CreateObject();
+        root=cJSON_CreateObject();
 
-    cJSON_AddStringToObject(root,"plate",		result->bestPlate.characters.c_str());
-    cJSON_AddNumberToObject(root,"confidence",		result->bestPlate.overall_confidence);
-    cJSON_AddNumberToObject(root,"matches_template",	result->bestPlate.matches_template);
+        cJSON_AddStringToObject(root,"plate",		result->bestPlate.characters.c_str());
+        cJSON_AddNumberToObject(root,"confidence",		result->bestPlate.overall_confidence);
+        cJSON_AddNumberToObject(root,"matches_template",	result->bestPlate.matches_template);
 
-    cJSON_AddNumberToObject(root,"plate_index",               result->plate_index);
+        cJSON_AddNumberToObject(root,"plate_index",               result->plate_index);
 
-    cJSON_AddStringToObject(root,"region",		result->region.c_str());
-    cJSON_AddNumberToObject(root,"region_confidence",	result->regionConfidence);
+        cJSON_AddStringToObject(root,"region",		result->region.c_str());
+        cJSON_AddNumberToObject(root,"region_confidence",	result->regionConfidence);
 
-    cJSON_AddNumberToObject(root,"processing_time_ms",	result->processing_time_ms);
-    cJSON_AddNumberToObject(root,"requested_topn",	result->requested_topn);
+        cJSON_AddNumberToObject(root,"processing_time_ms",	result->processing_time_ms);
+        cJSON_AddNumberToObject(root,"requested_topn",	result->requested_topn);
+        cJSON_AddItemToObject(root, "coordinates", 		coords=cJSON_CreateArray());
 
-    cJSON_AddItemToObject(root, "coordinates", 		coords=cJSON_CreateArray());
-    for (int i=0;i<4;i++)
-    {
-      cJSON *coords_object;
-      coords_object = cJSON_CreateObject();
-      cJSON_AddNumberToObject(coords_object, "x",  result->plate_points[i].x);
-      cJSON_AddNumberToObject(coords_object, "y",  result->plate_points[i].y);
+        for (int i=0; i<4; i++) { // Iterate over each of the 4 corners of the bounding box.
+            cJSON *coords_object;
+            coords_object = cJSON_CreateObject();
+            cJSON_AddNumberToObject(coords_object, "x",  result->plate_points[i].x);
+            cJSON_AddNumberToObject(coords_object, "y",  result->plate_points[i].y);
 
-      cJSON_AddItemToArray(coords, coords_object);
-    }
+            cJSON_AddItemToArray(coords, coords_object);
+        }
 
 
-    cJSON_AddItemToObject(root, "candidates", 		candidates=cJSON_CreateArray());
-    for (unsigned int i = 0; i < result->topNPlates.size(); i++)
-    {
-      cJSON *candidate_object;
-      candidate_object = cJSON_CreateObject();
-      cJSON_AddStringToObject(candidate_object, "plate",  result->topNPlates[i].characters.c_str());
-      cJSON_AddNumberToObject(candidate_object, "confidence",  result->topNPlates[i].overall_confidence);
-      cJSON_AddNumberToObject(candidate_object, "matches_template",  result->topNPlates[i].matches_template);
+        cJSON_AddItemToObject(root, "candidates", 		candidates=cJSON_CreateArray());
+        for (unsigned int i = 0; i < result->topNPlates.size(); i++)  {
+            cJSON *candidate_object;
+            candidate_object = cJSON_CreateObject();
+            cJSON_AddStringToObject(candidate_object, "plate",  result->topNPlates[i].characters.c_str());
+            cJSON_AddNumberToObject(candidate_object, "confidence",  result->topNPlates[i].overall_confidence);
+            cJSON_AddNumberToObject(candidate_object, "matches_template",  result->topNPlates[i].matches_template);
 
-      cJSON_AddItemToArray(candidates, candidate_object);
-    }
+            cJSON_AddItemToArray(candidates, candidate_object);
+        }
 
-    return root;
+        return root;
     }
 
     AlprResults AlprImpl::fromJson(std::string json) {
-    AlprResults allResults;
+        AlprResults allResults;
 
-    cJSON* root = cJSON_Parse(json.c_str());
+        cJSON* root = cJSON_Parse(json.c_str());
 
-    int version = cJSON_GetObjectItem(root, "version")->valueint;
-    allResults.epoch_time = (int64_t) cJSON_GetObjectItem(root, "epoch_time")->valuedouble;
-    allResults.img_width = cJSON_GetObjectItem(root, "img_width")->valueint;
-    allResults.img_height = cJSON_GetObjectItem(root, "img_height")->valueint;
-    allResults.total_processing_time_ms = cJSON_GetObjectItem(root, "processing_time_ms")->valueint;
-
-
-    cJSON* rois = cJSON_GetObjectItem(root,"regions_of_interest");
-    int numRois = cJSON_GetArraySize(rois);
-    for (int c = 0; c < numRois; c++)
-    {
-      cJSON* roi = cJSON_GetArrayItem(rois, c);
-      int x = cJSON_GetObjectItem(roi, "x")->valueint;
-      int y = cJSON_GetObjectItem(roi, "y")->valueint;
-      int width = cJSON_GetObjectItem(roi, "width")->valueint;
-      int height = cJSON_GetObjectItem(roi, "height")->valueint;
-
-      AlprRegionOfInterest alprRegion(x,y,width,height);
-      allResults.regionsOfInterest.push_back(alprRegion);
-    }
-
-    cJSON* resultsArray = cJSON_GetObjectItem(root,"results");
-    int resultsSize = cJSON_GetArraySize(resultsArray);
-
-    for (int i = 0; i < resultsSize; i++)
-    {
-      cJSON* item = cJSON_GetArrayItem(resultsArray, i);
-      AlprPlateResult plate;
-
-      //plate.bestPlate = cJSON_GetObjectItem(item, "plate")->valuestring;
-      plate.processing_time_ms = cJSON_GetObjectItem(item, "processing_time_ms")->valuedouble;
-      plate.plate_index = cJSON_GetObjectItem(item, "plate_index")->valueint;
-      plate.region = std::string(cJSON_GetObjectItem(item, "region")->valuestring);
-      plate.regionConfidence = cJSON_GetObjectItem(item, "region_confidence")->valueint;
-      plate.requested_topn = cJSON_GetObjectItem(item, "requested_topn")->valueint;
+        int version = cJSON_GetObjectItem(root, "version")->valueint;
+        allResults.epoch_time = (int64_t) cJSON_GetObjectItem(root, "epoch_time")->valuedouble;
+        allResults.img_width = cJSON_GetObjectItem(root, "img_width")->valueint;
+        allResults.img_height = cJSON_GetObjectItem(root, "img_height")->valueint;
+        allResults.total_processing_time_ms = cJSON_GetObjectItem(root, "processing_time_ms")->valueint;
 
 
-      cJSON* coordinates = cJSON_GetObjectItem(item,"coordinates");
-      for (int c = 0; c < 4; c++)
-      {
-        cJSON* coordinate = cJSON_GetArrayItem(coordinates, c);
-        AlprCoordinate alprcoord;
-        alprcoord.x = cJSON_GetObjectItem(coordinate, "x")->valueint;
-        alprcoord.y = cJSON_GetObjectItem(coordinate, "y")->valueint;
+        cJSON* rois = cJSON_GetObjectItem(root,"regions_of_interest");
+        int numRois = cJSON_GetArraySize(rois);
+        for (int c = 0; c < numRois; c++) {
+            cJSON* roi = cJSON_GetArrayItem(rois, c);
+            int x = cJSON_GetObjectItem(roi, "x")->valueint;
+            int y = cJSON_GetObjectItem(roi, "y")->valueint;
+            int width = cJSON_GetObjectItem(roi, "width")->valueint;
+            int height = cJSON_GetObjectItem(roi, "height")->valueint;
 
-        plate.plate_points[c] = alprcoord;
-      }
-
-      cJSON* candidates = cJSON_GetObjectItem(item,"candidates");
-      int numCandidates = cJSON_GetArraySize(candidates);
-      for (int c = 0; c < numCandidates; c++)
-      {
-        cJSON* candidate = cJSON_GetArrayItem(candidates, c);
-        AlprPlate plateCandidate;
-        plateCandidate.characters = std::string(cJSON_GetObjectItem(candidate, "plate")->valuestring);
-        plateCandidate.overall_confidence = cJSON_GetObjectItem(candidate, "confidence")->valuedouble;
-        plateCandidate.matches_template = (cJSON_GetObjectItem(candidate, "matches_template")->valueint) != 0;
-
-        plate.topNPlates.push_back(plateCandidate);
-
-        if (c == 0)
-        {
-          plate.bestPlate = plateCandidate;
+            AlprRegionOfInterest alprRegion(x,y,width,height);
+            allResults.regionsOfInterest.push_back(alprRegion);
         }
-      }
 
-      allResults.plates.push_back(plate);
-    }
+        cJSON* resultsArray = cJSON_GetObjectItem(root,"results");
+        int resultsSize = cJSON_GetArraySize(resultsArray);
 
+        for (int i = 0; i < resultsSize; i++) {
+            cJSON* item = cJSON_GetArrayItem(resultsArray, i);
+            AlprPlateResult plate;
 
-    cJSON_Delete(root);
+            plate.processing_time_ms = cJSON_GetObjectItem(item, "processing_time_ms")->valuedouble;
+            plate.plate_index = cJSON_GetObjectItem(item, "plate_index")->valueint;
+            plate.region = std::string(cJSON_GetObjectItem(item, "region")->valuestring);
+            plate.regionConfidence = cJSON_GetObjectItem(item, "region_confidence")->valueint;
+            plate.requested_topn = cJSON_GetObjectItem(item, "requested_topn")->valueint;
 
+            cJSON* coordinates = cJSON_GetObjectItem(item,"coordinates");
+            for (int c = 0; c < 4; c++) {
+                cJSON* coordinate = cJSON_GetArrayItem(coordinates, c);
+                AlprCoordinate alprcoord;
+                alprcoord.x = cJSON_GetObjectItem(coordinate, "x")->valueint;
+                alprcoord.y = cJSON_GetObjectItem(coordinate, "y")->valueint;
 
-    return allResults;
+                plate.plate_points[c] = alprcoord;
+            }
+
+            cJSON* candidates = cJSON_GetObjectItem(item,"candidates");
+            int numCandidates = cJSON_GetArraySize(candidates);
+            for (int c = 0; c < numCandidates; c++) {
+                cJSON* candidate = cJSON_GetArrayItem(candidates, c);
+                AlprPlate plateCandidate;
+                plateCandidate.characters = std::string(cJSON_GetObjectItem(candidate, "plate")->valuestring);
+                plateCandidate.overall_confidence = cJSON_GetObjectItem(candidate, "confidence")->valuedouble;
+                plateCandidate.matches_template = (cJSON_GetObjectItem(candidate, "matches_template")->valueint) != 0;
+
+                plate.topNPlates.push_back(plateCandidate);
+
+                if (c == 0) { // Check to see if this is the first guesses (the most confident)
+                    plate.bestPlate = plateCandidate; // Make this guess the best plate candidate.
+                }
+            }
+
+            allResults.plates.push_back(plate);
+        }
+
+        cJSON_Delete(root);
+
+        return allResults;
     }
 
     void AlprImpl::setCountry(std::string country) {

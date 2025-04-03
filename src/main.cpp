@@ -31,6 +31,69 @@
 #include "motiondetector.h"
 #include "alpr.h"
 
+// Required for random string generation (random_string):
+#include <string>
+#include <random>
+
+// Required for deleting old files (remove_old_files):
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <ctime>
+#include <cstring>
+
+// This function generates a string of random characters of a given length:
+std::string random_string(size_t length) {
+    const std::string characters = "0123456789abcdefghijklmnopqrstuvwxyz"; // Define the list of characters to choose from.
+    std::string random_string;
+    
+    // Create a random device and a random number generator:
+    std::random_device rd;  // Obtain a random number from hardware
+    std::mt19937 generator(rd()); // Seed the generator
+    std::uniform_int_distribution<> distribution(0, characters.size() - 1); // Define the range
+
+    // Generate random characters:
+    for (size_t i = 0; i < length; ++i) {
+        random_string += characters[distribution(generator)];
+    }
+
+    return random_string;
+}
+
+// This function deletes all files from a given directory older than a given age in seconds:
+void remove_old_files(const std::string& directory, int age_seconds) {
+    DIR* dir = opendir(directory.c_str());
+    if (!dir) {
+        std::cerr << "{\"error\": \"Error opening directory: " << strerror(errno) << "\"}" << std::endl;
+        return;
+    }
+
+    struct dirent* entry;
+    time_t now = time(nullptr);
+    time_t threshold = now - age_seconds; // Determine the threshold, under which files will be deleted.
+
+    while ((entry = readdir(dir)) != nullptr) { // Iterate over each file in the directory.
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) { // Skip the "." and ".." entries.
+            continue;
+        }
+
+        std::string filePath = directory + "/" + entry->d_name;
+        struct stat fileStat;
+
+        if (stat(filePath.c_str(), &fileStat) == 0) {
+            if (fileStat.st_mtime < threshold) { // Check of the file is older than the threshold.
+                if (!remove(filePath.c_str()) == 0) {
+                    std::cerr << "{\"error\": \"Error deleting file: " << filePath << " - " << strerror(errno) << "\"}" << std::endl;
+                }
+            }
+        } else {
+            std::cerr << "{\"error\": \"Error getting file status: " << filePath << " - " << strerror(errno) << "\"}" << std::endl;
+        }
+    }
+
+    closedir(dir);
+}
+
 using namespace alpr;
 
 const std::string MAIN_WINDOW_NAME = "ALPR main window";
@@ -40,9 +103,10 @@ const std::string LAST_VIDEO_STILL_LOCATION = "/tmp/laststill.jpg";
 const std::string WEBCAM_PREFIX = "/dev/video";
 MotionDetector motiondetector;
 bool do_motiondetection = true;
+bool save_each_frame = false;
 
 /** Function Headers */
-bool detectandshow(Alpr* alpr, cv::Mat frame, std::string region, bool writeJson);
+bool detectandshow(Alpr* alpr, cv::Mat frame, std::string region, bool save_each_frame);
 bool is_supported_video(std::string file_name);
 bool is_supported_image(std::string file_name);
 
@@ -52,22 +116,22 @@ std::string templatePattern;
 // so we can end infinite loops for things like video processing.
 bool program_active = true;
 
-int main( int argc, const char** argv) {
+int main(int argc, const char** argv) {
     std::vector<std::string> filenames;
     std::string configFile = "";
-    bool outputJson = true;
     int seektoms = 0;
     std::string country;
     int topn;
 
     TCLAP::CmdLine cmd("Phantom ALPR", ' ', Alpr::getVersion());
 
-    TCLAP::UnlabeledMultiArg<std::string>  fileArg( "image_file", "Image containing license plates", true, "", "image_file_path"  );
+    TCLAP::UnlabeledMultiArg<std::string>  fileArg("image_file", "Image containing license plates", true, "", "image_file_path");
 
 
-    TCLAP::ValueArg<std::string> countryCodeArg("c","country","Country code to identify (either us for USA or eu for Europe).  Default=us",false, "us" ,"country_code");
+    TCLAP::ValueArg<std::string> countryCodeArg("c","country","Country code to identify (Ex: 'us' for USA or 'eu' for Europe).  Default=us", false, "us", "country_code");
     TCLAP::ValueArg<int> topNArg("n","topn","Max number of possible plate numbers to return.  Default=10",false, 10 ,"topN");
-    TCLAP::SwitchArg motiondetect("", "motion", "Use motion detection on video file or stream.  Default=off", cmd, false);
+    TCLAP::SwitchArg motiondetect("", "motion", "Use motion detection on video file or stream.", cmd, false);
+    TCLAP::SwitchArg saveframes("s", "save_frames", "Save each frame to `/dev/shm/phantomalpr/` with a unique identifier.", cmd, false);
 
     try {
         cmd.add( topNArg );
@@ -84,6 +148,7 @@ int main( int argc, const char** argv) {
         country = countryCodeArg.getValue();
         topn = topNArg.getValue();
         do_motiondetection = motiondetect.getValue();
+        save_each_frame = saveframes.getValue();
     } catch (TCLAP::ArgException &e) {
         std::cerr << "{\"error\": \"" << e.error() << " for arg " << e.argId() << "\"}" << std::endl;
         return 1;
@@ -103,6 +168,13 @@ int main( int argc, const char** argv) {
         std::cerr << "{\"error\": \"Error loading Phantom\"}" << std::endl;
         return 1;
     }
+
+    if (save_each_frame) { // If individual frame-saving is enabled, then initialize the corresponding output directory.
+        const char* frame_directory = "/dev/shm/phantomalpr"; // This is the directory where each individual still frame will be saved.
+        mode_t permissions = 0777; // Set permissions to read, write, and execute for everyone.
+        makePath(frame_directory, permissions); // Create the directory.
+    }
+
 
     for (unsigned int i = 0; i < filenames.size(); i++) { // Iterate through all of the file names supplied.
         std::string filename = filenames[i];
@@ -126,8 +198,7 @@ int main( int argc, const char** argv) {
                 if (framenum == 0) {
                     motiondetector.ResetMotionDetection(&frame);
                 }
-                detectandshow(&alpr, frame, "", outputJson);
-                imwrite("/dev/shm/phantom-webcam.jpg", frame); // Save the captured frame to memory so other program's can access it.
+                detectandshow(&alpr, frame, "", save_each_frame);
                 sleep_ms(10);
                 framenum++;
             }
@@ -146,7 +217,7 @@ int main( int argc, const char** argv) {
               
                     if (framenum == 0)
                         motiondetector.ResetMotionDetection(&frame);
-                    detectandshow(&alpr, frame, "", outputJson);
+                    detectandshow(&alpr, frame, "", save_each_frame);
                     sleep_ms(1); // Create a 1 millisecond delay.
                     framenum++;
                 }
@@ -157,7 +228,7 @@ int main( int argc, const char** argv) {
             if (fileExists(filename.c_str())) {
                 frame = cv::imread(filename);
 
-                bool plate_found = detectandshow(&alpr, frame, "", outputJson);
+                bool plate_found = detectandshow(&alpr, frame, "", save_each_frame);
 
             } else {
                 std::cout << "{\"error\": \"Image file not found: " << filename << "\"}" << std::endl;
@@ -197,8 +268,8 @@ bool is_supported_image(std::string file_name) {
     return (hasEndingInsensitive(file_name, ".png") || hasEndingInsensitive(file_name, ".jpg") || hasEndingInsensitive(file_name, ".tif") || hasEndingInsensitive(file_name, ".bmp") ||  hasEndingInsensitive(file_name, ".jpeg") || hasEndingInsensitive(file_name, ".gif"));
 }
 
-bool detectandshow( Alpr* alpr, cv::Mat frame, std::string region, bool writeJson) {
-    // Get the time that the analysis started.
+bool detectandshow(Alpr* alpr, cv::Mat frame, std::string region, bool save_each_frame) {
+    // Get the time that the analysis started:
     timespec startTime;
     getTimeMonotonic(&startTime);
 
@@ -215,14 +286,21 @@ bool detectandshow( Alpr* alpr, cv::Mat frame, std::string region, bool writeJso
 
     AlprResults results;
     if (regionsOfInterest.size() > 0) {
-         results = alpr->recognize(frame.data, frame.elemSize(), frame.cols, frame.rows, regionsOfInterest);
+        results = alpr->recognize(frame.data, frame.elemSize(), frame.cols, frame.rows, regionsOfInterest);
+        remove_old_files("/dev/shm/phantomalpr/", 10); // Remove all frames older than 10 seconds.
+        results.identifier = random_string(12); // Assign a random identifier to this set of results.
+        imwrite("/dev/shm/phantom-webcam.jpg", frame); // Save the captured frame to memory so other program's can access it.
+        if (save_each_frame) {
+            imwrite("/dev/shm/phantomalpr/" + results.identifier + ".jpg", frame);
+        }
     }
 
-    // Get the time that the analysis finished.
+
+    // Get the time that the analysis finished:
     timespec endTime;
     getTimeMonotonic(&endTime);
 
-    // Calculate the total processing time based on the start time and end time.
+    // Calculate the total processing time based on the start time and end time:
     double totalProcessingTime = diffclock(startTime, endTime);
 
     std::cout << alpr->toJson(results) << std::endl; // Print the analysis results in JSON format.

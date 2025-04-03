@@ -19,112 +19,95 @@
 
 #include <fstream>
 
-namespace alpr
-{
 
-  // ALPR code
 
-  Alpr::Alpr(const std::string country, const std::string configFile, const std::string runtimeDir)
-  {
-    impl = new AlprImpl(country, configFile, runtimeDir);
-  }
-
-  Alpr::~Alpr()
-  {
-    delete impl;
-  }
-
-  AlprResults Alpr::recognize(std::string filepath) {
-    std::ifstream ifs(filepath.c_str(), std::ios::binary|std::ios::ate);
-    
-    if (ifs) {
-      std::ifstream::pos_type pos = ifs.tellg();
-
-      std::vector<char>  buffer(pos);
-
-      ifs.seekg(0, std::ios::beg);
-      ifs.read(&buffer[0], pos);
-
-      return this->recognize( buffer );
-    } else {
-      std::cerr << "{\"error\": \"File does not exist: " << filepath << "\"}" << std::endl;
-      AlprResults emptyResults;
-      emptyResults.epoch_time = getEpochTimeMs();
-      emptyResults.img_width = 0;
-      emptyResults.img_height = 0;
-      emptyResults.total_processing_time_ms = 0;
-      return emptyResults;
+namespace alpr {
+    Alpr::Alpr(const std::string country, const std::string configFile, const std::string runtimeDir) {
+        impl = new AlprImpl(country, configFile, runtimeDir);
     }
-  }
 
-  AlprResults Alpr::recognize(std::vector<char> imageBytes)
-  {
-    return impl->recognize(imageBytes);
-  }
+    Alpr::~Alpr() {
+        delete impl;
+    }
 
-  AlprResults Alpr::recognize(std::vector<char> imageBytes, std::vector<AlprRegionOfInterest> regionsOfInterest)
-  {
-	  return impl->recognize(imageBytes, regionsOfInterest);
-  }
+    AlprResults Alpr::recognize(std::string filepath) {
+        std::ifstream ifs(filepath.c_str(), std::ios::binary|std::ios::ate);
+        if (ifs) {
+            std::ifstream::pos_type pos = ifs.tellg();
 
-  AlprResults Alpr::recognize(unsigned char* pixelData, int bytesPerPixel, int imgWidth, int imgHeight, std::vector<AlprRegionOfInterest> regionsOfInterest)
-  {
-    return impl->recognize(pixelData, bytesPerPixel, imgWidth, imgHeight, regionsOfInterest);
-  }
+            std::vector<char>  buffer(pos);
 
-  std::string Alpr::toJson( AlprResults results )
-  {
-    return AlprImpl::toJson(results);
-  }
-  std::string Alpr::toJson( AlprPlateResult result )
-  {
-    return AlprImpl::toJson(result);
-  }
+            ifs.seekg(0, std::ios::beg);
+            ifs.read(&buffer[0], pos);
 
-  AlprResults Alpr::fromJson(std::string json) {
-    return AlprImpl::fromJson(json);
-  }
+            return this->recognize( buffer );
+        } else {
+            std::cerr << "{\"error\": \"File does not exist: " << filepath << "\"}" << std::endl;
+            AlprResults emptyResults;
+            emptyResults.epoch_time = getEpochTimeMs();
+            emptyResults.img_width = 0;
+            emptyResults.img_height = 0;
+            emptyResults.total_processing_time_ms = 0;
+            return emptyResults;
+        }
+    }
 
-  void Alpr::setCountry(std::string country) {
-    impl->setCountry(country);
-  }
+    AlprResults Alpr::recognize(std::vector<char> imageBytes) {
+        return impl->recognize(imageBytes);
+    }
 
-  void Alpr::setPrewarp(std::string prewarp_config) {
-    impl->setPrewarp(prewarp_config);
-  }
+    AlprResults Alpr::recognize(std::vector<char> imageBytes, std::vector<AlprRegionOfInterest> regionsOfInterest) {
+	    return impl->recognize(imageBytes, regionsOfInterest);
+    }
 
-  void Alpr::setMask(unsigned char* pixelData, int bytesPerPixel, int imgWidth, int imgHeight)
-  {
-    impl->setMask(pixelData, bytesPerPixel, imgWidth, imgHeight);
-  }
+    AlprResults Alpr::recognize(unsigned char* pixelData, int bytesPerPixel, int imgWidth, int imgHeight, std::vector<AlprRegionOfInterest> regionsOfInterest) {
+        return impl->recognize(pixelData, bytesPerPixel, imgWidth, imgHeight, regionsOfInterest);
+    }
 
-  void Alpr::setDetectRegion(bool detectRegion)
-  {
-    impl->setDetectRegion(detectRegion);
-  }
+    std::string Alpr::toJson(AlprResults results) {
+        return AlprImpl::toJson(results);
+    }
+    std::string Alpr::toJson(AlprPlateResult result) {
+        return AlprImpl::toJson(result);
+    }
 
-  void Alpr::setTopN(int topN)
-  {
-    impl->setTopN(topN);
-  }
+    AlprResults Alpr::fromJson(std::string json) {
+        return AlprImpl::fromJson(json);
+    }
 
-  void Alpr::setDefaultRegion(std::string region)
-  {
-    impl->setDefaultRegion(region);
-  }
+    void Alpr::setCountry(std::string country) {
+        impl->setCountry(country);
+    }
 
-  bool Alpr::isLoaded()
-  {
-    return impl->isLoaded();
-  }
+    void Alpr::setPrewarp(std::string prewarp_config) {
+        impl->setPrewarp(prewarp_config);
+    }
 
-  std::string Alpr::getVersion()
-  {
-    return AlprImpl::getVersion();
-  }
+    void Alpr::setMask(unsigned char* pixelData, int bytesPerPixel, int imgWidth, int imgHeight) {
+        impl->setMask(pixelData, bytesPerPixel, imgWidth, imgHeight);
+    }
 
-  Config* Alpr::getConfig()
-  {
-    return impl->config;
-  }
+    void Alpr::setDetectRegion(bool detectRegion) {
+        impl->setDetectRegion(detectRegion);
+    }
+
+    void Alpr::setTopN(int topN) {
+        impl->setTopN(topN);
+    }
+
+    void Alpr::setDefaultRegion(std::string region) {
+        impl->setDefaultRegion(region);
+    }
+
+    bool Alpr::isLoaded() {
+        return impl->isLoaded();
+    }
+
+    std::string Alpr::getVersion() {
+        return AlprImpl::getVersion();
+    }
+
+    Config* Alpr::getConfig() {
+        return impl->config;
+    }
 }
